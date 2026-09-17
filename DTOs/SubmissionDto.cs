@@ -2,5 +2,6 @@ namespace DsacReporting.Api.DTOs;
 
 public class SubmissionDto
 {
-    public int EntityId { get; set; }
+    public Guid EntityId { get; set; }
+    public Guid CycleId { get; set; }
 }
