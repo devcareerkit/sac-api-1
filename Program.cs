@@ -129,21 +129,25 @@ app.MapControllers();
 // Optionally apply init SQL to the database. Set environment variable APPLY_INIT_SQL=true to run.
 if (Environment.GetEnvironmentVariable("APPLY_INIT_SQL") == "true")
 {
-    var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data", "Database", "init.sql");
-    if (!File.Exists(sqlPath))
+    var sqlFiles = new[] { "init.sql", "002_add_password_hash.sql", "003_seed_demo_users.sql" };
+    foreach (var fileName in sqlFiles)
     {
-        sqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Database", "init.sql");
-    }
+        var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data", "Database", fileName);
+        if (!File.Exists(sqlPath))
+        {
+            sqlPath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "Database", fileName);
+        }
 
-    if (File.Exists(sqlPath))
-    {
-        Console.WriteLine($"Applying init SQL from {sqlPath}");
-        await DsacReporting.Api.Data.Database.DatabaseInitializer.ApplyInitSqlAsync(app.Services, sqlPath);
-        Console.WriteLine("Init SQL applied.");
-    }
-    else
-    {
-        Console.WriteLine("init.sql not found; skipping apply.");
+        if (File.Exists(sqlPath))
+        {
+            Console.WriteLine($"Applying SQL from {sqlPath}");
+            await DsacReporting.Api.Data.Database.DatabaseInitializer.ApplyInitSqlAsync(app.Services, sqlPath);
+            Console.WriteLine($"{fileName} applied.");
+        }
+        else
+        {
+            Console.WriteLine($"{fileName} not found; skipping.");
+        }
     }
 }
 
