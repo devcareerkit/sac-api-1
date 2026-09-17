@@ -46,7 +46,6 @@ string ConvertDatabaseUrlToConnectionString(string databaseUrl)
         Password = password,
         Database = database,
         SslMode = Npgsql.SslMode.Require,
-        TrustServerCertificate = true
     };
 
     return builder.ToString();
