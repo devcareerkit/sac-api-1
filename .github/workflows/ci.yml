@@ -1,0 +1,39 @@
+name: .NET CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore DsacReporting.Api/DsacReporting.Api.csproj
+
+    - name: Build
+      run: dotnet build DsacReporting.Api/DsacReporting.Api.csproj --configuration Release --no-restore
+
+    - name: Run tests
+      run: |
+        if [ -d "tests" ]; then dotnet test --no-build; else echo "No tests"; fi
+
+    # Optional: deploy to Railway using Railway CLI. Configure the RAILWAY_API_KEY secret in GitHub and set project id.
+    # - name: Install Railway CLI
+    #   run: curl -sSL https://raw.githubusercontent.com/railwayapp/cli/master/install.sh | sh
+
+    # - name: Deploy to Railway
+    #   env:
+    #     RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
+    #   run: |
+    #     railway login --apiKey "$RAILWAY_API_KEY"
+    #     railway up --non-interactive
