@@ -9,6 +9,13 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Bind to Railway's dynamically assigned port
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -98,7 +105,12 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Railway terminates TLS at its edge proxy and forwards plain HTTP to the container,
+// so redirecting to HTTPS here would break requests behind that proxy.
+if (string.IsNullOrEmpty(port))
+{
+    app.UseHttpsRedirection();
+}
 
 // Middleware ordering: authentication -> entity-scope enforcement -> authorization -> audit logging
 app.UseAuthentication();
