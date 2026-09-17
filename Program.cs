@@ -64,6 +64,7 @@ builder.Services.AddDbContext<AppDbContext>(opts => opts.UseNpgsql(conn));
 // Register application services
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 // Add other services as needed
 
 // Authentication (JWT)
