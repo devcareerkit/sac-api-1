@@ -101,6 +101,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+}
+
+// Swagger is enabled in dev by default, or in any environment via ENABLE_SWAGGER=true
+// (useful for inspecting a deployed instance while auth is still a stub).
+if (app.Environment.IsDevelopment() || Environment.GetEnvironmentVariable("ENABLE_SWAGGER") == "true")
+{
     app.UseSwagger();
     app.UseSwaggerUI();
 }
