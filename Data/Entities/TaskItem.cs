@@ -2,7 +2,12 @@ namespace DsacReporting.Api.Data.Entities;
 
 public class TaskItem
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
+    public Guid? SubmissionId { get; set; }
+    public Guid? AssignedBy { get; set; }
+    public Guid? AssignedTo { get; set; }
     public string Description { get; set; } = string.Empty;
-    public bool Completed { get; set; }
+    public string Status { get; set; } = "open"; // open, done
+    public DateOnly? DueDate { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 }

@@ -2,8 +2,9 @@ namespace DsacReporting.Api.Data.Entities;
 
 public class SubmissionValue
 {
-    public int Id { get; set; }
-    public int SubmissionId { get; set; }
-    public string Key { get; set; } = string.Empty;
-    public decimal Value { get; set; }
+    public Guid Id { get; set; }
+    public Guid SubmissionId { get; set; }
+    public Guid KpiTargetId { get; set; }
+    public decimal? ActualValue { get; set; }
+    public string? Notes { get; set; }
 }

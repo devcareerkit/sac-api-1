@@ -2,8 +2,10 @@ namespace DsacReporting.Api.Data.Entities;
 
 public class RiskScore
 {
-    public int Id { get; set; }
-    public int EntityId { get; set; }
-    public decimal Score { get; set; }
-    public DateTime CalculatedAt { get; set; }
+    public Guid Id { get; set; }
+    public Guid EntityId { get; set; }
+    public Guid CycleId { get; set; }
+    public decimal Score { get; set; } // 0-100
+    public string? Reason { get; set; }
+    public DateTimeOffset ComputedAt { get; set; }
 }
