@@ -13,3 +13,4 @@ appsettings.*.json
 secrets.json
 _publish/
 node_modules/
+.worktrees/
