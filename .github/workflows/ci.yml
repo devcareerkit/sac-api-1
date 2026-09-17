@@ -18,22 +18,40 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore DsacReporting.Api/DsacReporting.Api.csproj
+      run: dotnet restore DsacReporting.Api.csproj
 
     - name: Build
-      run: dotnet build DsacReporting.Api/DsacReporting.Api.csproj --configuration Release --no-restore
+      run: dotnet build DsacReporting.Api.csproj --configuration Release --no-restore
 
     - name: Run tests
       run: |
         if [ -d "tests" ]; then dotnet test --no-build; else echo "No tests"; fi
 
-    # Optional: deploy to Railway using Railway CLI. Configure the RAILWAY_API_KEY secret in GitHub and set project id.
-    # - name: Install Railway CLI
-    #   run: curl -sSL https://raw.githubusercontent.com/railwayapp/cli/master/install.sh | sh
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
 
-    # - name: Deploy to Railway
-    #   env:
-    #     RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
-    #   run: |
-    #     railway login --apiKey "$RAILWAY_API_KEY"
-    #     railway up --non-interactive
+    - name: Install Railway CLI
+      run: |
+        curl -sSL https://raw.githubusercontent.com/railwayapp/cli/master/install.sh | sh
+
+    - name: Deploy to Railway
+      env:
+        RAILWAY_API_KEY: ${{ secrets.RAILWAY_API_KEY }}
+        RAILWAY_PROJECT_ID: ${{ secrets.RAILWAY_PROJECT_ID }}
+      run: |
+        if [ -z "$RAILWAY_API_KEY" ] || [ -z "$RAILWAY_PROJECT_ID" ]; then
+          echo "RAILWAY_API_KEY or RAILWAY_PROJECT_ID not set. Skipping deploy.";
+          exit 1;
+        fi
+        railway login --apiKey "$RAILWAY_API_KEY"
+        # Deploy the repo to the specified Railway project non-interactively
+        railway up --project "$RAILWAY_PROJECT_ID" --non-interactive
+
+    # Note: set the repository secrets `RAILWAY_API_KEY` (service API key) and
+    # `RAILWAY_PROJECT_ID` (the target Railway project id). You can create a
+    # service API key in Railway Console (Project Settings -> API Keys) and
+    # find the project id in the project settings URL or Railway project info.
