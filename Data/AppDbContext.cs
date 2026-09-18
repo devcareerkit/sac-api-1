@@ -23,6 +23,7 @@ public class AppDbContext : DbContext
     public DbSet<Entities.AppSubmission> AppSubmissions => Set<Entities.AppSubmission>();
     public DbSet<Entities.AppIndicator> AppIndicators => Set<Entities.AppIndicator>();
     public DbSet<Entities.AppIndicatorQuarter> AppIndicatorQuarters => Set<Entities.AppIndicatorQuarter>();
+    public DbSet<Entities.DocumentBlob> DocumentBlobs => Set<Entities.DocumentBlob>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -235,6 +236,16 @@ public class AppDbContext : DbContext
             e.Property(x => x.ProofNotes).HasColumnName("proof_notes");
             e.Property(x => x.CompletedBy).HasColumnName("completed_by");
             e.Property(x => x.CompletedAt).HasColumnName("completed_at");
+        });
+
+        modelBuilder.Entity<Entities.DocumentBlob>(e =>
+        {
+            e.ToTable("document_blobs");
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.FileName).HasColumnName("file_name");
+            e.Property(x => x.ContentType).HasColumnName("content_type");
+            e.Property(x => x.Content).HasColumnName("content").HasColumnType("bytea");
+            e.Property(x => x.UploadedAt).HasColumnName("uploaded_at");
         });
     }
 }
