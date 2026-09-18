@@ -52,6 +52,20 @@ public class AppSubmissionsController : ControllerBase
         return Created($"/api/app-submissions/{id}", new { id });
     }
 
+    [HttpGet]
+    public async Task<IActionResult> List([FromQuery] Guid? entityId, [FromQuery] string? status)
+    {
+        var effectiveEntityId = User.IsDsacStaff() ? entityId : User.GetEntityId();
+
+        if (!User.IsDsacStaff() && effectiveEntityId is null)
+        {
+            return Ok(Array.Empty<object>());
+        }
+
+        var result = await _submissions.ListAsync(effectiveEntityId, status);
+        return Ok(result);
+    }
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id)
     {

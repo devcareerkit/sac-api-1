@@ -12,6 +12,16 @@ public class AppSubmissionResponseDto
     public List<AppIndicatorResponseDto> Indicators { get; set; } = new();
 }
 
+public class AppSubmissionSummaryDto
+{
+    public Guid Id { get; set; }
+    public Guid EntityId { get; set; }
+    public string EntityName { get; set; } = string.Empty;
+    public string FileUrl { get; set; } = string.Empty;
+    public DateTimeOffset UploadedAt { get; set; }
+    public string Status { get; set; } = string.Empty;
+}
+
 public class AppIndicatorResponseDto
 {
     public Guid Id { get; set; }

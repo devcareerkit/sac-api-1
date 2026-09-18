@@ -34,6 +34,38 @@ public class AppSubmissionService : IAppSubmissionService
         return submission.Id;
     }
 
+    public async Task<List<AppSubmissionSummaryDto>> ListAsync(Guid? entityId, string? status)
+    {
+        var query = _db.AppSubmissions.AsQueryable();
+
+        if (entityId.HasValue)
+        {
+            query = query.Where(s => s.EntityId == entityId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            query = query.Where(s => s.Status == status);
+        }
+
+        var submissions = await query.OrderByDescending(s => s.UploadedAt).ToListAsync();
+
+        var entityIds = submissions.Select(s => s.EntityId).Distinct().ToList();
+        var entityNames = await _db.Entities
+            .Where(e => entityIds.Contains(e.Id))
+            .ToDictionaryAsync(e => e.Id, e => e.Name);
+
+        return submissions.Select(s => new AppSubmissionSummaryDto
+        {
+            Id = s.Id,
+            EntityId = s.EntityId,
+            EntityName = entityNames.GetValueOrDefault(s.EntityId, "Unknown entity"),
+            FileUrl = s.FileUrl,
+            UploadedAt = s.UploadedAt,
+            Status = s.Status,
+        }).ToList();
+    }
+
     public async Task<AppSubmissionResponseDto?> GetAsync(Guid submissionId)
     {
         var submission = await _db.AppSubmissions.FirstOrDefaultAsync(s => s.Id == submissionId);
