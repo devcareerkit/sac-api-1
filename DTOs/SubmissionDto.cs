@@ -4,4 +4,5 @@ public class SubmissionDto
 {
     public Guid EntityId { get; set; }
     public Guid CycleId { get; set; }
+    public List<KpiValueDto> Values { get; set; } = new();
 }

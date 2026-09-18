@@ -130,7 +130,7 @@ app.MapControllers();
 // Optionally apply init SQL to the database. Set environment variable APPLY_INIT_SQL=true to run.
 if (Environment.GetEnvironmentVariable("APPLY_INIT_SQL") == "true")
 {
-    var sqlFiles = new[] { "init.sql", "002_add_password_hash.sql", "003_seed_demo_users.sql" };
+    var sqlFiles = new[] { "init.sql", "002_add_password_hash.sql", "003_seed_demo_users.sql", "004_seed_demo_cycle_and_kpis.sql" };
     foreach (var fileName in sqlFiles)
     {
         var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data", "Database", fileName);

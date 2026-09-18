@@ -2,6 +2,7 @@ namespace DsacReporting.Api.DTOs;
 
 public class KpiValueDto
 {
-    public string Key { get; set; } = string.Empty;
-    public decimal Value { get; set; }
+    public Guid KpiTargetId { get; set; }
+    public decimal? ActualValue { get; set; }
+    public string? Notes { get; set; }
 }
