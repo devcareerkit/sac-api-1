@@ -135,4 +135,42 @@ public class SubmissionService : ISubmissionService
 
         return summary;
     }
+
+    public async Task<Guid> SubmitKpiReportAsync(Guid entityId, KpiReportDto report, Guid submittedBy)
+    {
+        var currentCycle = await _db.ReportingCycles.OrderByDescending(c => c.DueDate).FirstOrDefaultAsync()
+            ?? throw new InvalidOperationException("No reporting cycle is configured.");
+
+        var targets = await _db.KpiTargets
+            .Where(k => k.EntityId == entityId && k.CycleId == currentCycle.Id)
+            .ToListAsync();
+
+        var jobsTarget = targets.FirstOrDefault(k => k.KpiName == "Job creation");
+        var budgetTarget = targets.FirstOrDefault(k => k.KpiName == "Budget spent");
+
+        var values = new List<KpiValueDto>();
+        if (jobsTarget is not null)
+        {
+            values.Add(new KpiValueDto
+            {
+                KpiTargetId = jobsTarget.Id,
+                ActualValue = report.JobsCreated,
+                Notes = report.VarianceNotes,
+            });
+        }
+
+        if (budgetTarget is not null)
+        {
+            values.Add(new KpiValueDto
+            {
+                KpiTargetId = budgetTarget.Id,
+                ActualValue = report.BudgetSpent,
+                Notes = report.VarianceNotes,
+            });
+        }
+
+        return await CreateSubmissionAsync(
+            new SubmissionDto { EntityId = entityId, CycleId = currentCycle.Id, Values = values },
+            submittedBy);
+    }
 }

@@ -33,6 +33,7 @@ public class JwtTokenGeneratorTests
 
         Assert.Equal(user.Email, jwt.Claims.First(c => c.Type == "email").Value);
         Assert.Equal(user.Role, jwt.Claims.First(c => c.Type == System.Security.Claims.ClaimTypes.Role).Value);
+        Assert.Equal(user.Role, jwt.Claims.First(c => c.Type == "role").Value);
         Assert.Equal(user.EntityId.ToString(), jwt.Claims.First(c => c.Type == "entity_id").Value);
         Assert.True(expiresAt > DateTimeOffset.UtcNow.AddHours(7));
         Assert.True(expiresAt <= DateTimeOffset.UtcNow.AddHours(8).AddMinutes(1));

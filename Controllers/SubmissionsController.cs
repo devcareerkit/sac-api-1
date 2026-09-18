@@ -44,4 +44,20 @@ public class SubmissionsController : ControllerBase
         var id = await _submissions.CreateSubmissionAsync(dto, User.GetUserId());
         return CreatedAtAction(nameof(List), new { id }, new { id });
     }
+
+    // Simplified submission endpoint matching the frontend's KPI submission form
+    // (Job Creation / Budget Spent / Variance Notes) — resolves KPI targets for
+    // the caller's own entity and the current cycle server-side.
+    [HttpPost("kpi-report")]
+    public async Task<IActionResult> SubmitKpiReport([FromBody] KpiReportDto report)
+    {
+        var entityId = User.GetEntityId();
+        if (entityId is null)
+        {
+            return BadRequest(new { error = "Only an entity officer with an assigned entity can submit a KPI report." });
+        }
+
+        var id = await _submissions.SubmitKpiReportAsync(entityId.Value, report, User.GetUserId());
+        return CreatedAtAction(nameof(List), new { id }, new { id });
+    }
 }

@@ -23,7 +23,12 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new("email", user.Email),
+            // ClaimTypes.Role is required for ASP.NET's IsInRole()/[Authorize(Roles=...)] to
+            // work server-side, but its string value is a long XML-namespace URI, not "role" —
+            // add a plain "role" claim too so external consumers (e.g. the frontend) can read
+            // it without knowing that mapping.
             new(ClaimTypes.Role, user.Role),
+            new("role", user.Role),
         };
 
         if (user.EntityId.HasValue)
