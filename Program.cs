@@ -106,6 +106,7 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IDocumentStorageService, SharePointDocumentStorageService>();
 builder.Services.AddScoped<IEntityPortfolioService, EntityPortfolioService>();
 builder.Services.AddScoped<IAlertsService, AlertsService>();
+builder.Services.AddScoped<IRiskScoringService, RiskScoringService>();
 builder.Services.AddScoped<IKpiFormSchemaService, KpiFormSchemaService>();
 builder.Services.AddScoped<IEntityKpiService, EntityKpiService>();
 builder.Services.AddScoped<IAppSubmissionService, AppSubmissionService>();
@@ -178,7 +179,7 @@ app.MapControllers();
 // Optionally apply init SQL to the database. Set environment variable APPLY_INIT_SQL=true to run.
 if (Environment.GetEnvironmentVariable("APPLY_INIT_SQL") == "true")
 {
-    var sqlFiles = new[] { "init.sql", "002_add_password_hash.sql", "003_seed_demo_users.sql", "004_seed_demo_cycle_and_kpis.sql", "005_seed_budget_kpi.sql", "006_app_kpi_workflow.sql", "007_dedupe_entities.sql" };
+    var sqlFiles = new[] { "init.sql", "002_add_password_hash.sql", "003_seed_demo_users.sql", "004_seed_demo_cycle_and_kpis.sql", "005_seed_budget_kpi.sql", "006_app_kpi_workflow.sql", "007_dedupe_entities.sql", "008_remove_test_entity.sql" };
     foreach (var fileName in sqlFiles)
     {
         var sqlPath = Path.Combine(AppContext.BaseDirectory, "Data", "Database", fileName);

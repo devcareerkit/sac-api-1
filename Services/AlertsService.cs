@@ -7,7 +7,13 @@ namespace DsacReporting.Api.Services;
 public class AlertsService : IAlertsService
 {
     private readonly AppDbContext _db;
-    public AlertsService(AppDbContext db) => _db = db;
+    private readonly IRiskScoringService _riskScoring;
+
+    public AlertsService(AppDbContext db, IRiskScoringService riskScoring)
+    {
+        _db = db;
+        _riskScoring = riskScoring;
+    }
 
     public async Task<List<AlertDto>> GetActiveAlertsAsync()
     {
@@ -16,6 +22,8 @@ public class AlertsService : IAlertsService
         {
             return new List<AlertDto>();
         }
+
+        await _riskScoring.ComputeAllAsync();
 
         var riskScores = await _db.RiskScores
             .Where(r => r.CycleId == currentCycle.Id && r.Score >= 40)

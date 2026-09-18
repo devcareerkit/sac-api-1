@@ -7,10 +7,18 @@ namespace DsacReporting.Api.Services;
 public class EntityPortfolioService : IEntityPortfolioService
 {
     private readonly AppDbContext _db;
-    public EntityPortfolioService(AppDbContext db) => _db = db;
+    private readonly IRiskScoringService _riskScoring;
+
+    public EntityPortfolioService(AppDbContext db, IRiskScoringService riskScoring)
+    {
+        _db = db;
+        _riskScoring = riskScoring;
+    }
 
     public async Task<List<EntityPortfolioDto>> ListPortfolioAsync()
     {
+        await _riskScoring.ComputeAllAsync();
+
         var currentCycle = await _db.ReportingCycles.OrderByDescending(c => c.DueDate).FirstOrDefaultAsync();
         var entities = await _db.Entities.OrderBy(e => e.Name).ToListAsync();
 
@@ -42,6 +50,8 @@ public class EntityPortfolioService : IEntityPortfolioService
 
     private async Task<EntityDetailDto> BuildDetailDtoAsync(Data.Entities.Entity entity)
     {
+        await _riskScoring.ComputeAllAsync();
+
         var currentCycle = await _db.ReportingCycles.OrderByDescending(c => c.DueDate).FirstOrDefaultAsync();
 
         var status = "not_started";
