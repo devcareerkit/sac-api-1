@@ -14,3 +14,8 @@ secrets.json
 _publish/
 node_modules/
 .worktrees/
+.gstack/
+
+# Local reference material only — not source, not tracked (large binaries)
+docs/*.pdf
+docs/nac-app.txt
