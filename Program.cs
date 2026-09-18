@@ -45,6 +45,7 @@ builder.Services.AddSwaggerGen(options =>
 
 // Configuration
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
+builder.Services.Configure<SharePointSettings>(builder.Configuration.GetSection("SharePoint"));
 
 // DbContext - support DATABASE_URL (Railway) or ConnectionStrings:Default
 var rawConn = Environment.GetEnvironmentVariable("DATABASE_URL") ?? builder.Configuration.GetConnectionString("Default");
@@ -88,6 +89,7 @@ builder.Services.AddDbContext<AppDbContext>(opts => opts.UseNpgsql(conn));
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+builder.Services.AddScoped<IDocumentStorageService, SharePointDocumentStorageService>();
 // Add other services as needed
 
 // Authentication (JWT)
