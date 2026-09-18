@@ -29,6 +29,11 @@ public class SubmissionService : ISubmissionService
         submission.Status = "submitted";
         submission.SubmittedAt = DateTimeOffset.UtcNow;
 
+        // Save the submission first: SubmissionValue.SubmissionId is a plain Guid, not an EF
+        // navigation property, so EF's dependency graph doesn't know to insert Submission
+        // before SubmissionValue — without this, a new submission's FK insert fails.
+        await _db.SaveChangesAsync();
+
         foreach (var value in dto.Values)
         {
             var existing = await _db.SubmissionValues.FirstOrDefaultAsync(v =>
