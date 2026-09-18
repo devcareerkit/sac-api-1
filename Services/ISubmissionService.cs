@@ -6,4 +6,5 @@ public interface ISubmissionService
 {
     Task<Guid> CreateSubmissionAsync(SubmissionDto dto, Guid submittedBy);
     Task<List<SubmissionSummaryDto>> ListSubmissionsAsync(Guid? entityId);
+    Task<SubmissionSummaryStatsDto> GetSummaryAsync(Guid? entityId);
 }

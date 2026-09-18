@@ -4,6 +4,7 @@ using DsacReporting.Api.DTOs;
 using DsacReporting.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DsacReporting.Api.Controllers;
 
@@ -24,6 +25,29 @@ public class DocumentsController : ControllerBase
     {
         _storage = storage;
         _db = db;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> List([FromQuery] Guid entityId)
+    {
+        if (!User.IsDsacStaff() && User.GetEntityId() != entityId)
+        {
+            return Forbid();
+        }
+
+        var records = await _db.DocumentRecords
+            .Where(d => d.EntityId == entityId)
+            .OrderByDescending(d => d.UploadedAt)
+            .ToListAsync();
+
+        var documents = records.Select(d => new DocumentSummaryDto
+        {
+            Id = d.Id,
+            Name = SlugHelper.ExtractFileName(d.FileUrl),
+            UploadedAt = d.UploadedAt,
+        }).ToList();
+
+        return Ok(documents);
     }
 
     [HttpPost("upload")]

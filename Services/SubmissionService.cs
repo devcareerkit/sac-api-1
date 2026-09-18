@@ -87,4 +87,52 @@ public class SubmissionService : ISubmissionService
             })
             .ToListAsync();
     }
+
+    public async Task<SubmissionSummaryStatsDto> GetSummaryAsync(Guid? entityId)
+    {
+        var currentCycle = await _db.ReportingCycles.OrderByDescending(c => c.DueDate).FirstOrDefaultAsync();
+
+        var summary = new SubmissionSummaryStatsDto
+        {
+            DaysUntilDeadline = currentCycle is null
+                ? null
+                : (int)Math.Ceiling((currentCycle.DueDate.ToDateTime(TimeOnly.MinValue) - DateTime.UtcNow).TotalDays),
+        };
+
+        if (currentCycle is null)
+        {
+            return summary;
+        }
+
+        var submissionsQuery = _db.Submissions.Where(s => s.CycleId == currentCycle.Id);
+        if (entityId.HasValue)
+        {
+            submissionsQuery = submissionsQuery.Where(s => s.EntityId == entityId.Value);
+        }
+
+        var submissions = await submissionsQuery.ToListAsync();
+        summary.Completed = submissions.Count(s => s.Status == "submitted");
+        summary.InProgress = submissions.Count(s => s.Status == "in_progress");
+        summary.NotStarted = submissions.Count(s => s.Status == "not_started" || s.Status == "missed");
+
+        var submissionIds = submissions.Select(s => s.Id).ToList();
+        var values = submissionIds.Count == 0
+            ? new List<Data.Entities.SubmissionValue>()
+            : await _db.SubmissionValues.Where(v => submissionIds.Contains(v.SubmissionId)).ToListAsync();
+
+        var kpiTargetIds = values.Select(v => v.KpiTargetId).Distinct().ToList();
+        var kpiTargets = kpiTargetIds.Count == 0
+            ? new List<Data.Entities.KpiTarget>()
+            : await _db.KpiTargets.Where(k => kpiTargetIds.Contains(k.Id)).ToListAsync();
+
+        summary.JobsCreated = values
+            .Where(v => kpiTargets.Any(k => k.Id == v.KpiTargetId && k.KpiName == "Job creation"))
+            .Sum(v => v.ActualValue ?? 0);
+
+        summary.Beneficiaries = values
+            .Where(v => kpiTargets.Any(k => k.Id == v.KpiTargetId && k.KpiName == "Beneficiaries reached"))
+            .Sum(v => v.ActualValue ?? 0);
+
+        return summary;
+    }
 }

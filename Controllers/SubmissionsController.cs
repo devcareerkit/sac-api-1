@@ -15,12 +15,21 @@ public class SubmissionsController : ControllerBase
     public SubmissionsController(ISubmissionService submissions) => _submissions = submissions;
 
     [HttpGet]
-    public async Task<IActionResult> List()
+    public async Task<IActionResult> List([FromQuery] Guid? entityId)
     {
-        // entity_officer only ever sees their own entity's submissions; DSAC staff see all.
-        var entityId = User.IsDsacStaff() ? null : User.GetEntityId();
-        var result = await _submissions.ListSubmissionsAsync(entityId);
+        // entity_officer only ever sees their own entity's submissions; DSAC staff see all
+        // (or a specific entity, if they passed ?entityId=).
+        var effectiveEntityId = User.IsDsacStaff() ? entityId : User.GetEntityId();
+        var result = await _submissions.ListSubmissionsAsync(effectiveEntityId);
         return Ok(result);
+    }
+
+    [HttpGet("summary")]
+    public async Task<IActionResult> Summary()
+    {
+        var entityId = User.IsDsacStaff() ? null : User.GetEntityId();
+        var summary = await _submissions.GetSummaryAsync(entityId);
+        return Ok(summary);
     }
 
     [HttpPost]

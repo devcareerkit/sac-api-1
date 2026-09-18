@@ -19,6 +19,19 @@ if (!string.IsNullOrEmpty(port))
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+var corsOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Frontend", policy =>
+    {
+        if (corsOrigins.Length > 0)
+        {
+            policy.WithOrigins(corsOrigins).AllowAnyHeader().AllowAnyMethod();
+        }
+    });
+});
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -90,6 +103,8 @@ builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IDocumentStorageService, SharePointDocumentStorageService>();
+builder.Services.AddScoped<IEntityPortfolioService, EntityPortfolioService>();
+builder.Services.AddScoped<IAlertsService, AlertsService>();
 // Add other services as needed
 
 // Authentication (JWT)
@@ -143,6 +158,8 @@ if (string.IsNullOrEmpty(port))
 {
     app.UseHttpsRedirection();
 }
+
+app.UseCors("Frontend");
 
 // Middleware ordering: authentication -> entity-scope enforcement -> authorization -> audit logging
 app.UseAuthentication();
