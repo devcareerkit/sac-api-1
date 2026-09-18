@@ -25,6 +25,19 @@ public class RiskScoringService : IRiskScoringService
         var appSubmissions = await _db.AppSubmissions.ToListAsync();
         var entityKpis = await _db.EntityKpis.ToListAsync();
 
+        // Predictive signal: the 3 reporting cycles immediately before the
+        // current one, used to flag an entity trending toward non-compliance
+        // even if its current-cycle submission looks fine so far.
+        var priorCycles = await _db.ReportingCycles
+            .Where(c => c.DueDate < currentCycle.DueDate)
+            .OrderByDescending(c => c.DueDate)
+            .Take(3)
+            .ToListAsync();
+        var priorCycleIds = priorCycles.Select(c => c.Id).ToHashSet();
+        var priorSubmissions = await _db.Submissions
+            .Where(s => priorCycleIds.Contains(s.CycleId))
+            .ToListAsync();
+
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var daysUntilDue = currentCycle.DueDate.DayNumber - today.DayNumber;
 
@@ -64,6 +77,17 @@ public class RiskScoringService : IRiskScoringService
             {
                 score += 20;
                 reasons.Add("KPIs sent but no APP submission has been uploaded yet.");
+            }
+
+            // Predictive: missed at least 2 of the last 3 cycles is a pattern,
+            // not a one-off - flag it even when the current cycle looks fine.
+            var missedInPriorCycles = priorSubmissions.Count(s => s.EntityId == entity.Id && s.Status == "missed");
+            if (priorCycles.Count > 0 && missedInPriorCycles >= 2)
+            {
+                score += 25;
+                reasons.Add(
+                    $"Predicted risk: missed {missedInPriorCycles} of the last {priorCycles.Count} " +
+                    "reporting cycles - trending toward non-compliance.");
             }
 
             score = Math.Min(score, 100);

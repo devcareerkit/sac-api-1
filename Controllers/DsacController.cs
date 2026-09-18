@@ -15,14 +15,20 @@ public class DsacController : ControllerBase
     private readonly IDashboardService _dashboard;
     private readonly ISubmissionService _submissions;
     private readonly IAppIndicatorService _indicators;
+    private readonly ITrendService _trends;
     private readonly AppDbContext _db;
 
     public DsacController(
-        IDashboardService dashboard, ISubmissionService submissions, IAppIndicatorService indicators, AppDbContext db)
+        IDashboardService dashboard,
+        ISubmissionService submissions,
+        IAppIndicatorService indicators,
+        ITrendService trends,
+        AppDbContext db)
     {
         _dashboard = dashboard;
         _submissions = submissions;
         _indicators = indicators;
+        _trends = trends;
         _db = db;
     }
 
@@ -72,5 +78,29 @@ public class DsacController : ControllerBase
 
         var summary = await _indicators.GetPortfolioSummaryAsync();
         return Ok(summary);
+    }
+
+    [HttpGet("trends")]
+    public async Task<IActionResult> PortfolioTrend()
+    {
+        if (!User.IsDsacStaff())
+        {
+            return Forbid();
+        }
+
+        var trend = await _trends.GetPortfolioTrendAsync();
+        return Ok(trend);
+    }
+
+    [HttpGet("entity/{id}/trend")]
+    public async Task<IActionResult> EntityTrend(Guid id)
+    {
+        if (!User.IsDsacStaff() && User.GetEntityId() != id)
+        {
+            return Forbid();
+        }
+
+        var trend = await _trends.GetEntityTrendAsync(id);
+        return trend is null ? NotFound() : Ok(trend);
     }
 }
