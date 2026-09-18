@@ -106,7 +106,7 @@ public class ClaudeAppExtractionService : IAppExtractionService
         return ParseResponse(text);
     }
 
-    internal static ExtractionResult ParseResponse(string json)
+    public static ExtractionResult ParseResponse(string json)
     {
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;

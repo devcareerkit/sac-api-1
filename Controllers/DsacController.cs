@@ -14,12 +14,15 @@ public class DsacController : ControllerBase
 {
     private readonly IDashboardService _dashboard;
     private readonly ISubmissionService _submissions;
+    private readonly IAppIndicatorService _indicators;
     private readonly AppDbContext _db;
 
-    public DsacController(IDashboardService dashboard, ISubmissionService submissions, AppDbContext db)
+    public DsacController(
+        IDashboardService dashboard, ISubmissionService submissions, IAppIndicatorService indicators, AppDbContext db)
     {
         _dashboard = dashboard;
         _submissions = submissions;
+        _indicators = indicators;
         _db = db;
     }
 
@@ -57,5 +60,17 @@ public class DsacController : ControllerBase
             entityName = entity.Name,
             submissions,
         });
+    }
+
+    [HttpGet("indicator-summary")]
+    public async Task<IActionResult> IndicatorSummary()
+    {
+        if (!User.IsDsacStaff())
+        {
+            return Forbid();
+        }
+
+        var summary = await _indicators.GetPortfolioSummaryAsync();
+        return Ok(summary);
     }
 }

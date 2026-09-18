@@ -59,6 +59,7 @@ builder.Services.AddSwaggerGen(options =>
 // Configuration
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.Configure<SharePointSettings>(builder.Configuration.GetSection("SharePoint"));
+builder.Services.Configure<AnthropicSettings>(builder.Configuration.GetSection("Anthropic"));
 
 // DbContext - support DATABASE_URL (Railway) or ConnectionStrings:Default
 var rawConn = Environment.GetEnvironmentVariable("DATABASE_URL") ?? builder.Configuration.GetConnectionString("Default");
@@ -105,6 +106,11 @@ builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 builder.Services.AddScoped<IDocumentStorageService, SharePointDocumentStorageService>();
 builder.Services.AddScoped<IEntityPortfolioService, EntityPortfolioService>();
 builder.Services.AddScoped<IAlertsService, AlertsService>();
+builder.Services.AddScoped<IKpiFormSchemaService, KpiFormSchemaService>();
+builder.Services.AddScoped<IEntityKpiService, EntityKpiService>();
+builder.Services.AddScoped<IAppSubmissionService, AppSubmissionService>();
+builder.Services.AddScoped<IAppIndicatorService, AppIndicatorService>();
+builder.Services.AddScoped<IAppExtractionService, ClaudeAppExtractionService>();
 // Add other services as needed
 
 // Authentication (JWT)
