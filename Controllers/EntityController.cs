@@ -7,7 +7,7 @@ namespace DsacReporting.Api.Controllers;
 public class EntityController : ControllerBase
 {
     [HttpGet("{id}")]
-    public IActionResult Get(int id)
+    public IActionResult Get(string id)
     {
         return Ok(new { Id = id, Name = "Sample Entity" });
     }
