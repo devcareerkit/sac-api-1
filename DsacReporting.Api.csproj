@@ -19,4 +19,12 @@
     <None Include="Data/Database/*.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="test/**/*.cs" />
+    <Compile Remove="test/**/*" />
+    <Content Remove="test/**/*" />
+    <None Remove="test/**/*" />
+    <EmbeddedResource Remove="test/**/*" />
+  </ItemGroup>
+
 </Project>

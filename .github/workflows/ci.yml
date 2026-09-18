@@ -25,7 +25,7 @@ jobs:
 
     - name: Run tests
       run: |
-        if [ -d "tests" ]; then dotnet test --no-build; else echo "No tests"; fi
+        if [ -d "test" ]; then dotnet test test/DsacReporting.Api.Tests/DsacReporting.Api.Tests.csproj; else echo "No tests"; fi
 
   # Deploys are handled by Railway's GitHub integration (auto-deploy on push to main),
   # so no separate deploy job is needed here.
