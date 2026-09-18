@@ -18,6 +18,11 @@ public class AppDbContext : DbContext
     public DbSet<Entities.RiskScore> RiskScores => Set<Entities.RiskScore>();
     public DbSet<Entities.Notification> Notifications => Set<Entities.Notification>();
     public DbSet<Entities.AuditLogEntry> AuditLogEntries => Set<Entities.AuditLogEntry>();
+    public DbSet<Entities.KpiFormSchema> KpiFormSchemas => Set<Entities.KpiFormSchema>();
+    public DbSet<Entities.EntityKpi> EntityKpis => Set<Entities.EntityKpi>();
+    public DbSet<Entities.AppSubmission> AppSubmissions => Set<Entities.AppSubmission>();
+    public DbSet<Entities.AppIndicator> AppIndicators => Set<Entities.AppIndicator>();
+    public DbSet<Entities.AppIndicatorQuarter> AppIndicatorQuarters => Set<Entities.AppIndicatorQuarter>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -155,6 +160,81 @@ public class AppDbContext : DbContext
             e.Property(x => x.TargetId).HasColumnName("target_id");
             e.Property(x => x.Metadata).HasColumnName("metadata");
             e.Property(x => x.CreatedAt).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<Entities.KpiFormSchema>(e =>
+        {
+            e.ToTable("kpi_form_schemas");
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.Name).HasColumnName("name");
+            e.Property(x => x.SchemaJson).HasColumnName("schema_json").HasColumnType("jsonb");
+            e.Property(x => x.CreatedBy).HasColumnName("created_by");
+            e.Property(x => x.CreatedAt).HasColumnName("created_at");
+            e.Property(x => x.IsActive).HasColumnName("is_active");
+        });
+
+        modelBuilder.Entity<Entities.EntityKpi>(e =>
+        {
+            e.ToTable("entity_kpis");
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.EntityId).HasColumnName("entity_id");
+            e.Property(x => x.FormSchemaId).HasColumnName("form_schema_id");
+            e.Property(x => x.KpiName).HasColumnName("kpi_name");
+            e.Property(x => x.Unit).HasColumnName("unit");
+            e.Property(x => x.FiveYearTarget).HasColumnName("five_year_target");
+            e.Property(x => x.FormValues).HasColumnName("form_values").HasColumnType("jsonb");
+            e.Property(x => x.Status).HasColumnName("status");
+            e.Property(x => x.CreatedBy).HasColumnName("created_by");
+            e.Property(x => x.CreatedAt).HasColumnName("created_at");
+            e.Property(x => x.SentAt).HasColumnName("sent_at");
+            e.Property(x => x.ReceivedAt).HasColumnName("received_at");
+        });
+
+        modelBuilder.Entity<Entities.AppSubmission>(e =>
+        {
+            e.ToTable("app_submissions");
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.EntityId).HasColumnName("entity_id");
+            e.Property(x => x.FileUrl).HasColumnName("file_url");
+            e.Property(x => x.UploadedBy).HasColumnName("uploaded_by");
+            e.Property(x => x.UploadedAt).HasColumnName("uploaded_at");
+            e.Property(x => x.Status).HasColumnName("status");
+            e.Property(x => x.AiSummary).HasColumnName("ai_summary");
+            e.Property(x => x.AiProcessedAt).HasColumnName("ai_processed_at");
+            e.Property(x => x.AiProcessedBy).HasColumnName("ai_processed_by");
+            e.Property(x => x.ReviewedBy).HasColumnName("reviewed_by");
+            e.Property(x => x.ReviewedAt).HasColumnName("reviewed_at");
+            e.Property(x => x.RejectionReason).HasColumnName("rejection_reason");
+        });
+
+        modelBuilder.Entity<Entities.AppIndicator>(e =>
+        {
+            e.ToTable("app_indicators");
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.AppSubmissionId).HasColumnName("app_submission_id");
+            e.Property(x => x.EntityId).HasColumnName("entity_id");
+            e.Property(x => x.EntityKpiId).HasColumnName("entity_kpi_id");
+            e.Property(x => x.Name).HasColumnName("name");
+            e.Property(x => x.AnnualTarget).HasColumnName("annual_target");
+            e.Property(x => x.Unit).HasColumnName("unit");
+            e.Property(x => x.MatchConfidence).HasColumnName("match_confidence");
+            e.Property(x => x.IsApproved).HasColumnName("is_approved");
+            e.Property(x => x.Status).HasColumnName("status");
+            e.Property(x => x.CreatedAt).HasColumnName("created_at");
+        });
+
+        modelBuilder.Entity<Entities.AppIndicatorQuarter>(e =>
+        {
+            e.ToTable("app_indicator_quarters");
+            e.Property(x => x.Id).HasColumnName("id");
+            e.Property(x => x.AppIndicatorId).HasColumnName("app_indicator_id");
+            e.Property(x => x.Quarter).HasColumnName("quarter");
+            e.Property(x => x.QuarterTarget).HasColumnName("quarter_target");
+            e.Property(x => x.Status).HasColumnName("status");
+            e.Property(x => x.ProofFileUrl).HasColumnName("proof_file_url");
+            e.Property(x => x.ProofNotes).HasColumnName("proof_notes");
+            e.Property(x => x.CompletedBy).HasColumnName("completed_by");
+            e.Property(x => x.CompletedAt).HasColumnName("completed_at");
         });
     }
 }

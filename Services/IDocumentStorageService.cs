@@ -7,4 +7,6 @@ public interface IDocumentStorageService
     bool IsConfigured { get; }
 
     Task<UploadedFile> UploadAsync(Stream content, string fileName, string contentType, CancellationToken ct = default);
+
+    Task<byte[]> DownloadAsync(string fileUrl, CancellationToken ct = default);
 }

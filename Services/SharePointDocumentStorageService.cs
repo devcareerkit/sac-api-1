@@ -87,4 +87,31 @@ public class SharePointDocumentStorageService : IDocumentStorageService
 
         return new UploadedFile(driveItem.WebUrl, 1);
     }
+
+    public async Task<byte[]> DownloadAsync(string fileUrl, CancellationToken ct = default)
+    {
+        if (!IsConfigured)
+        {
+            throw new InvalidOperationException("SharePoint is not configured.");
+        }
+
+        var driveId = await GetDriveIdAsync(ct);
+        var fileName = Uri.UnescapeDataString(fileUrl.TrimEnd('/').Split('/').LastOrDefault() ?? fileUrl);
+
+        await using var stream = await _graphClient.Value
+            .Drives[driveId]
+            .Root
+            .ItemWithPath($"DsacReporting/{Uri.EscapeDataString(fileName)}")
+            .Content
+            .GetAsync(cancellationToken: ct);
+
+        if (stream is null)
+        {
+            throw new InvalidOperationException($"Could not download file '{fileName}' from SharePoint.");
+        }
+
+        using var memory = new MemoryStream();
+        await stream.CopyToAsync(memory, ct);
+        return memory.ToArray();
+    }
 }
