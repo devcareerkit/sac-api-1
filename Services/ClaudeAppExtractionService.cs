@@ -54,10 +54,12 @@ public class ClaudeAppExtractionService : IAppExtractionService
                             },
                         },
                         required = new[] { "name", "annual_target", "unit", "quarterly_targets" },
+                        additionalProperties = false,
                     },
                 },
             }),
             ["required"] = JsonSerializer.SerializeToElement(new[] { "summary", "indicators" }),
+            ["additionalProperties"] = JsonSerializer.SerializeToElement(false),
         };
 
         var parameters = new MessageCreateParams
