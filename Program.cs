@@ -103,18 +103,23 @@ builder.Services.AddDbContext<AppDbContext>(opts => opts.UseNpgsql(conn));
 builder.Services.AddScoped<ISubmissionService, SubmissionService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-// Document storage backend: "sharepoint" (default once configured) or "db"
-// (interim Postgres-backed storage, no external credentials needed).
-// Set DocumentStorage__Provider=sharepoint to switch back once SharePoint
-// credentials are available.
-var documentStorageProvider = builder.Configuration["DocumentStorage:Provider"] ?? "db";
+// Document storage backend: "dual" (default) writes to Postgres (primary, authoritative
+// for downloads) and best-effort mirrors to SharePoint (secondary; failures are logged,
+// never block the upload). "db" and "sharepoint" select a single backend directly.
+var documentStorageProvider = builder.Configuration["DocumentStorage:Provider"] ?? "dual";
+builder.Services.AddScoped<DbDocumentStorageService>();
+builder.Services.AddScoped<SharePointDocumentStorageService>();
 if (string.Equals(documentStorageProvider, "sharepoint", StringComparison.OrdinalIgnoreCase))
 {
-    builder.Services.AddScoped<IDocumentStorageService, SharePointDocumentStorageService>();
+    builder.Services.AddScoped<IDocumentStorageService>(sp => sp.GetRequiredService<SharePointDocumentStorageService>());
+}
+else if (string.Equals(documentStorageProvider, "db", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddScoped<IDocumentStorageService>(sp => sp.GetRequiredService<DbDocumentStorageService>());
 }
 else
 {
-    builder.Services.AddScoped<IDocumentStorageService, DbDocumentStorageService>();
+    builder.Services.AddScoped<IDocumentStorageService, DualDocumentStorageService>();
 }
 builder.Services.AddScoped<IEntityPortfolioService, EntityPortfolioService>();
 builder.Services.AddScoped<IAlertsService, AlertsService>();
