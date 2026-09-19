@@ -82,7 +82,7 @@ public class SharePointDocumentStorageService : IDocumentStorageService
         var driveItem = await _graphClient.Value
             .Drives[driveId]
             .Root
-            .ItemWithPath($"DsacReporting/{safeName}")
+            .ItemWithPath(safeName)
             .Content
             .PutAsync(content, cancellationToken: ct);
 
@@ -107,7 +107,7 @@ public class SharePointDocumentStorageService : IDocumentStorageService
         await using var stream = await _graphClient.Value
             .Drives[driveId]
             .Root
-            .ItemWithPath($"DsacReporting/{Uri.EscapeDataString(fileName)}")
+            .ItemWithPath(Uri.EscapeDataString(fileName))
             .Content
             .GetAsync(cancellationToken: ct);
 
