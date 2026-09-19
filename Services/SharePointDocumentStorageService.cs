@@ -33,6 +33,12 @@ public class SharePointDocumentStorageService : IDocumentStorageService
             return _driveId;
         }
 
+        if (!string.IsNullOrWhiteSpace(_settings.DriveId))
+        {
+            _driveId = _settings.DriveId;
+            return _driveId;
+        }
+
         var site = await _graphClient.Value
             .Sites[$"{_settings.SiteHostname}:/{_settings.SitePath.Trim('/')}"]
             .GetAsync(cancellationToken: ct);
