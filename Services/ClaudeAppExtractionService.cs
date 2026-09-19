@@ -49,8 +49,6 @@ public class ClaudeAppExtractionService : IAppExtractionService
                             {
                                 type = "array",
                                 items = new { type = new[] { "number", "null" } },
-                                minItems = 4,
-                                maxItems = 4,
                             },
                         },
                         required = new[] { "name", "annual_target", "unit", "quarterly_targets" },
@@ -82,9 +80,10 @@ public class ClaudeAppExtractionService : IAppExtractionService
                                    "Indicators and Targets\") and Part D (\"Technical Indicator " +
                                    "Descriptions\") if present. Extract every Output Indicator you find, " +
                                    "with its annual target for the current/nearest year, its unit, and its " +
-                                   "quarterly target split (Q1-Q4; use null for any quarter you cannot " +
-                                   "determine). Also write a 2-4 sentence plain-language summary of the " +
-                                   "APP's overall strategic focus.",
+                                   "quarterly target split. quarterly_targets must always be an array of " +
+                                   "exactly 4 values, one per quarter in order (Q1, Q2, Q3, Q4); use null " +
+                                   "for any quarter you cannot determine. Also write a 2-4 sentence " +
+                                   "plain-language summary of the APP's overall strategic focus.",
                         },
                     },
                 },
